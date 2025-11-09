@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -38,6 +38,20 @@ async function run() {
         app.get('/travels', async(req, res) => {
             const result = await travelCollection.find().toArray()
             res.send(result)
+        })
+
+        // API calls for single data view details
+
+        app.get('/travels/:id', async (req, res) => {
+            const {id} = req.params
+            console.log(id)
+
+        const result = await travelCollection.findOne({_id: new ObjectId(id)})
+
+            res.send({
+                success: true,
+                result
+            })
         })
 
         // post method for sending data to mongodb
