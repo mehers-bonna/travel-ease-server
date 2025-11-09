@@ -30,13 +30,13 @@ async function run() {
         await client.connect();
 
 
-        const db = client.db('travel_db')
-        const travelsCollection = db.collection('travels');
+        const db = client.db('travel-db')
+        const travelCollection = db.collection('travels');
 
-        app.post('/travels', async (req, res) => {
-            const newTravels = req.body;
-            const result = await travelsCollection.insertOne(newTravels);
-            res.send(result);
+        app.get('/travels', async(req, res) => {
+            const result = await travelCollection.find().toArray()
+
+           res.send(result)
         })
 
 
@@ -44,7 +44,7 @@ async function run() {
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     }
     finally {
-        await client.close();
+        // await client.close();
     }
 
 }
