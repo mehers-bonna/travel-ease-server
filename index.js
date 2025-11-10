@@ -87,6 +87,16 @@ async function run() {
             })
         })
 
+        // to get latest 6 data
+
+        app.get('/latestVehicles', async (req, res) => {
+            const result = await travelCollection.find().sort({createdAt: 'desc'}).limit(6).toArray()
+            
+            console.log(result)
+
+            res.send(result)
+        })
+
 
 
         // -----------------
