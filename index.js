@@ -35,7 +35,7 @@ async function run() {
 
         // API calls for allVehicle page
 
-        app.get('/travels', async(req, res) => {
+        app.get('/travels', async (req, res) => {
             const result = await travelCollection.find().toArray()
             res.send(result)
         })
@@ -43,10 +43,10 @@ async function run() {
         // API calls for single data view details
 
         app.get('/travels/:id', async (req, res) => {
-            const {id} = req.params
+            const { id } = req.params
             console.log(id)
 
-        const result = await travelCollection.findOne({_id: new ObjectId(id)})
+            const result = await travelCollection.findOne({ _id: new ObjectId(id) })
 
             res.send({
                 success: true,
@@ -60,6 +60,27 @@ async function run() {
             const data = req.body
             // console.log(data)
             const result = await travelCollection.insertOne(data)
+            res.send({
+                success: true,
+                result
+            })
+        })
+
+        // put method for updating data
+        app.put('/travels/:id', async (req, res) => {
+            const { id } = req.params
+            const data = req.body
+            // console.log(id)
+            // console.log(data)
+
+            const objectId = new ObjectId(id)
+            const filter = {_id: objectId}
+            const update = {
+                $set: data
+            }
+
+            const result = await travelCollection.updateOne(filter, update)
+
             res.send({
                 success: true,
                 result
