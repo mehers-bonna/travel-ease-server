@@ -32,6 +32,7 @@ async function run() {
 
         const db = client.db('travel-db')
         const travelCollection = db.collection('travels');
+        const bookingCollection = db.collection('bookings');
 
         // API calls for allVehicle page
 
@@ -117,6 +118,20 @@ async function run() {
                 success: true,
                 result
             })
+        })
+
+        // post method for booking vehicles
+        app.post('/bookings', async (req, res) => {
+            const data = req.body
+            const result = await bookingCollection.insertOne(data)
+            res.send(result)
+        })
+
+        // get method for myBookings
+        app.get('/myBookings', async (req, res) => {
+            const email = req.query.email
+            const result = await bookingCollection.find({userEmail: email}).toArray()
+            res.send(result)
         })
 
 
