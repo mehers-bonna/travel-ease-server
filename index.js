@@ -105,6 +105,20 @@ async function run() {
             res.send(result)
         })
 
+        // delete method to delete data
+        app.delete('/travels/:id', async (req, res) => {
+            const {id} = req.params
+            const objectId = new ObjectId(id)
+            const filter = {_id: objectId}
+
+            const result = await travelCollection.deleteOne(filter)
+
+            res.send({
+                success: true,
+                result
+            })
+        })
+
 
 
         // -----------------
