@@ -97,6 +97,14 @@ async function run() {
             res.send(result)
         })
 
+        // to get myVehicles data
+        app.get('/myVehicles', async (req, res) => {
+            const email = req.query.email
+            const result = await travelCollection.find({userEmail: email}).toArray()
+
+            res.send(result)
+        })
+
 
 
         // -----------------
