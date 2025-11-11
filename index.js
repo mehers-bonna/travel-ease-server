@@ -1,12 +1,20 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const admin = require("firebase-admin");
+const serviceAccount = require("./serviceKey.json");
 const app = express();
 const port = process.env.PORT || 3000;
 
 // middleware
 app.use(cors());
 app.use(express.json())
+
+// firebase admin
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
 
 
 
@@ -19,6 +27,31 @@ const client = new MongoClient(uri, {
         deprecationErrors: true,
     }
 });
+
+// making middleware
+const verifyToken = async (req, res, next) => {
+    const authorization = req.headers.authorization
+    if(!authorization) {
+        res.status(401).send({
+        message: "unauthorized access. Token not found"
+    })
+    }
+
+    const token = authorization.split(' ')[1]
+    
+   try {
+    await admin.auth().verifyIdToken(token)
+     next()
+
+   } catch (error) {
+    res.status(401).send({
+        message: "unauthorized access."
+    })
+   }
+
+   
+    
+}
 
 
 app.get('/', (req, res) => {
@@ -43,7 +76,7 @@ async function run() {
 
         // API calls for single data view details
 
-        app.get('/travels/:id', async (req, res) => {
+        app.get('/travels/:id', verifyToken, async (req, res) => {
             const { id } = req.params
             console.log(id)
 
@@ -57,7 +90,7 @@ async function run() {
 
         // post method for sending data to mongodb
 
-        app.post('/travels', async (req, res) => {
+        app.post('/travels', verifyToken, async (req, res) => {
             const data = req.body
             // console.log(data)
             const result = await travelCollection.insertOne(data)
@@ -68,7 +101,7 @@ async function run() {
         })
 
         // put method for updating data
-        app.put('/travels/:id', async (req, res) => {
+        app.put('/travels/:id', verifyToken, async (req, res) => {
             const { id } = req.params
             const data = req.body
             // console.log(id)
@@ -99,7 +132,7 @@ async function run() {
         })
 
         // to get myVehicles data
-        app.get('/myVehicles', async (req, res) => {
+        app.get('/myVehicles', verifyToken, async (req, res) => {
             const email = req.query.email
             const result = await travelCollection.find({userEmail: email}).toArray()
 
@@ -128,7 +161,7 @@ async function run() {
         })
 
         // get method for myBookings
-        app.get('/myBookings', async (req, res) => {
+        app.get('/myBookings', verifyToken, async (req, res) => {
             const email = req.query.email
             const result = await bookingCollection.find({userEmail: email}).toArray()
             res.send(result)
